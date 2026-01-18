@@ -83,7 +83,8 @@ public class SeatunnelWebAdapter implements WebMvcConfigurer {
                         "*.html",
                         "/ui/**",
                         "/error",
-                        "/swagger-ui.html**");
+                        "/swagger-ui.html**",
+                        "/api/**");
     }
 
     @Override
