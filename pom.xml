@@ -67,6 +67,7 @@
         <jackson-databind.version>2.12.6</jackson-databind.version>
         <jackson.version>2.12.7</jackson.version>
         <mysql.version>8.0.16</mysql.version>
+        <dameng-jdbc.version>8.1.2.141</dameng-jdbc.version>
         <h2.version>2.1.214</h2.version>
         <junit.version>5.9.0</junit.version>
         <commons-collections4.version>4.4</commons-collections4.version>

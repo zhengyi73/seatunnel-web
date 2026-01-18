@@ -18,8 +18,11 @@
 package org.apache.seatunnel.app.thirdparty.datasource.impl;
 
 import org.apache.seatunnel.app.thirdparty.datasource.DataSourceConfigSwitcher;
+import org.apache.seatunnel.common.utils.SeaTunnelException;
 
 import com.google.auto.service.AutoService;
+
+import java.util.List;
 
 @AutoService(DataSourceConfigSwitcher.class)
 public class DamengDataSourceConfigSwitcher extends BaseJdbcDataSourceConfigSwitcher {
@@ -29,5 +32,43 @@ public class DamengDataSourceConfigSwitcher extends BaseJdbcDataSourceConfigSwit
     @Override
     public String getDataSourceName() {
         return "JDBC-DAMENG";
+    }
+
+    @Override
+    protected String quoteIdentifier(String identifier) {
+        return "\"" + identifier + "\"";
+    }
+
+    @Override
+    protected String tableFieldsToSql(List<String> tableFields, String database, String fullTable) {
+        String[] split = fullTable.split("\\.");
+        if (split.length != 2) {
+            throw new SeaTunnelException(
+                    "The tableName for dameng must be schemaName.tableName, but tableName is "
+                            + fullTable);
+        }
+
+        String schemaName = split[0];
+        String tableName = split[1];
+
+        return generateSql(tableFields, database, schemaName, tableName);
+    }
+
+    @Override
+    protected String generateSql(
+            List<String> tableFields, String database, String schema, String table) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT ");
+        for (int i = 0; i < tableFields.size(); i++) {
+            sb.append(quoteIdentifier(tableFields.get(i)));
+            if (i < tableFields.size() - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append(" FROM ")
+                .append(quoteIdentifier(schema))
+                .append(".")
+                .append(quoteIdentifier(table));
+        return sb.toString();
     }
 }

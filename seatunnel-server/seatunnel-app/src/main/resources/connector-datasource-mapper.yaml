@@ -26,6 +26,7 @@ connector-datasource-mapper:
         - JDBC-KingBase
         - JDBC-Oracle
         - JDBC-Db2
+        - JDBC-DAMENG
         - JDBC-Hive
 
     MySQL-CDC:
@@ -91,6 +92,11 @@ connector-datasource-mapper:
         - SINGLE_TABLE
 
     JDBC-Oracle:
+      businessMode:
+        - DATA_INTEGRATION
+      sceneMode:
+        - SINGLE_TABLE
+    JDBC-DAMENG:
       businessMode:
         - DATA_INTEGRATION
       sceneMode:
@@ -209,6 +215,13 @@ connector-datasource-mapper:
       sceneMode:
         - SINGLE_TABLE
     JDBC-Oracle:
+      businessMode:
+        - DATA_INTEGRATION
+        - DATA_REPLICA
+      sceneMode:
+        - SINGLE_TABLE
+        - MULTIPLE_TABLE
+    JDBC-DAMENG:
       businessMode:
         - DATA_INTEGRATION
         - DATA_REPLICA

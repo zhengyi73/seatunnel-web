@@ -36,6 +36,7 @@
         <postgresql.version>42.4.3</postgresql.version>
         <sqlserver.version>9.2.1.jre8</sqlserver.version>
         <mysql-connector.version>8.0.28</mysql-connector.version>
+        <dameng-jdbc.version>8.1.2.141</dameng-jdbc.version>
     </properties>
 
     <profiles>
@@ -377,6 +378,18 @@
                 </dependency>
                 <dependency>
                     <groupId>org.apache.seatunnel</groupId>
+                    <artifactId>datasource-jdbc-dameng</artifactId>
+                    <version>${project.version}</version>
+                    <scope>provided</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>*</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.seatunnel</groupId>
                     <artifactId>datasource-fakesource</artifactId>
                     <version>${project.version}</version>
                     <scope>provided</scope>
@@ -414,6 +427,13 @@
                     <groupId>mysql</groupId>
                     <artifactId>mysql-connector-java</artifactId>
                     <version>${mysql-connector.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>com.dameng</groupId>
+                    <artifactId>DmJdbcDriver18</artifactId>
+                    <version>${dameng-jdbc.version}</version>
                     <scope>provided</scope>
                 </dependency>
 

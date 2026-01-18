@@ -106,6 +106,9 @@ public class DatasourceLoadConfig {
         classLoaderFactoryName.put(
                 "CONSOLE",
                 "org.apache.seatunnel.datasource.plugin.console.ConsoleDataSourceFactory");
+        classLoaderFactoryName.put(
+                "JDBC-DAMENG",
+                "org.apache.seatunnel.datasource.plugin.dameng.jdbc.DamengDataSourceFactory");
 
         classLoaderJarName.put("JDBC-ORACLE", "datasource-jdbc-oracle-");
         classLoaderJarName.put("JDBC-CLICKHOUSE", "datasource-jdbc-clickhouse-");
@@ -130,6 +133,7 @@ public class DatasourceLoadConfig {
         classLoaderJarName.put("JDBC-HIVE", "datasource-jdbc-hive-");
         classLoaderJarName.put("FAKESOURCE", "datasource-fakesource-");
         classLoaderJarName.put("CONSOLE", "datasource-console-");
+        classLoaderJarName.put("JDBC-DAMENG", "datasource-jdbc-dameng-");
     }
 
     public static final Set<String> pluginSet =
@@ -150,6 +154,7 @@ public class DatasourceLoadConfig {
                     "StarRocks",
                     "MongoDB",
                     "JDBC-Db2",
+                    "JDBC-DAMENG",
                     "FakeSource",
                     "Console");
 
