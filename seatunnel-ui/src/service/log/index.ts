@@ -18,6 +18,18 @@
 import { axios } from '@/service/service'
 import rawAxios from 'axios'
 import type { LogParams, LogRes, LogNode } from './types'
+import { useUserStore } from '@/store/user'
+import type { UserDetail } from '@/service/user/types'
+
+// Helper function to get auth headers for raw axios requests
+function getAuthHeaders(): Record<string, string> {
+  const userStore = useUserStore()
+  const headers: Record<string, string> = {}
+  if (Object.keys(userStore.getUserInfo).length > 0) {
+    headers.token = (userStore.getUserInfo as UserDetail).token as string
+  }
+  return headers
+}
 
 // Query task logs
 export function queryLog(params: LogParams): Promise<LogRes> {
@@ -32,7 +44,8 @@ export function queryLog(params: LogParams): Promise<LogRes> {
 export function getLogNodes(jobId: string | number): Promise<any> {
   // Here we use raw axios to make direct requests, avoiding the addition of /seatunnel/api/v1 prefix
   return rawAxios.get(`/api/logs/${jobId}`, {
-    params: { format: 'json' }
+    params: { format: 'json' },
+    headers: getAuthHeaders()
   })
 }
 
@@ -49,7 +62,9 @@ export function getLogContent(logUrl: string): Promise<{ data: string }> {
       const search = url.search;
       
       // Request through proxy
-      return rawAxios.get(`/api${pathName}${search}`);
+      return rawAxios.get(`/api${pathName}${search}`, {
+        headers: getAuthHeaders()
+      });
     } catch (e) {
       console.error('Error fetching log content:', e);
       return Promise.reject(new Error('Failed to fetch log content'));
@@ -59,6 +74,8 @@ export function getLogContent(logUrl: string): Promise<{ data: string }> {
     const logFileName = logUrl.split('/').pop() || '';
     
     // Directly request through raw axios, avoiding the addition of /seatunnel/api/v1 prefix
-    return rawAxios.get(`/api/logs/content/${logFileName}`);
+    return rawAxios.get(`/api/logs/content/${logFileName}`, {
+      headers: getAuthHeaders()
+    });
   }
 }

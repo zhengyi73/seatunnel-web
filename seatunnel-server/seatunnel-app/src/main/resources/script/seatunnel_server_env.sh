@@ -18,4 +18,4 @@
 export HOSTNAME="127.0.0.1"
 export PORT="3306"
 export USERNAME="root"
-export PASSWORD="123456"
+export PASSWORD="718731"

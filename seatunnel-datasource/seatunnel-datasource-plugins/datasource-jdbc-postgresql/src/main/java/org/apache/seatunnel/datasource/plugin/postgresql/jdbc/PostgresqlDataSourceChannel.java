@@ -215,6 +215,8 @@ public class PostgresqlDataSourceChannel implements DataSourceChannel {
             throws SQLException, ClassNotFoundException {
         checkNotNull(requestParams.get(PostgresqlOptionRule.DRIVER.key()));
         checkNotNull(requestParams.get(PostgresqlOptionRule.URL.key()), "Jdbc url cannot be null");
+        // 显式加载驱动类，解决自定义类加载器环境下驱动无法自动注册的问题
+        Class.forName(requestParams.get(PostgresqlOptionRule.DRIVER.key()));
         String url =
                 JdbcUtils.replaceDatabase(
                         requestParams.get(PostgresqlOptionRule.URL.key()), databaseName);

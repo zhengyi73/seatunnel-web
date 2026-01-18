@@ -16,18 +16,26 @@
  */
 
 import { debounce } from 'lodash'
-import { useResizeObserver } from '@vueuse/core'
+import { onMounted, onUnmounted } from 'vue'
 import type { Graph } from '@antv/x6'
 import type { Ref } from 'vue'
 
 export function useDagResize(container: Ref<HTMLElement>, graph: Ref<Graph>) {
   const resize = debounce(() => {
-    if (container.value) {
+    if (container.value && graph.value) {
       const w = container.value.offsetWidth
       const h = container.value.offsetHeight
-      graph.value?.resize(w, h)
+      graph.value.resize(w, h)
     }
   }, 200)
 
-  useResizeObserver(container, resize)
+  onMounted(() => {
+    window.addEventListener('resize', resize)
+    // 初始化时调用一次
+    resize()
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('resize', resize)
+  })
 }
