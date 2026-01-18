@@ -25,7 +25,7 @@ export const useSettingStore = defineStore({
     dataUniqueValue: false,
     fillet: 15,
     requestTime: 6000,
-    locales: 'en_US',
+    locales: 'zh_CN',
     workspaces: []
   }),
   persist: true,
