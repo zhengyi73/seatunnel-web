@@ -29,6 +29,7 @@ import org.apache.hadoop.fs.Path;
 import lombok.NonNull;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -49,13 +50,13 @@ public class S3DatasourceChannel implements DataSourceChannel {
             Map<String, String> requestParams,
             String database,
             Map<String, String> options) {
-        throw new UnsupportedOperationException("getTables is not supported for S3 datasource");
+        return Collections.emptyList();
     }
 
     @Override
     public List<String> getDatabases(
             @NonNull String pluginName, @NonNull Map<String, String> requestParams) {
-        throw new UnsupportedOperationException("getDatabases is not supported for S3 datasource");
+        return Collections.emptyList();
     }
 
     @Override
@@ -77,8 +78,7 @@ public class S3DatasourceChannel implements DataSourceChannel {
             @NonNull Map<String, String> requestParams,
             @NonNull String database,
             @NonNull String table) {
-        throw new UnsupportedOperationException(
-                "getTableFields is not supported for S3 datasource");
+        return Collections.emptyList();
     }
 
     @Override
@@ -87,7 +87,6 @@ public class S3DatasourceChannel implements DataSourceChannel {
             @NonNull Map<String, String> requestParams,
             @NonNull String database,
             @NonNull List<String> tables) {
-        throw new UnsupportedOperationException(
-                "getTableFields is not supported for S3 datasource");
+        return Collections.emptyMap();
     }
 }

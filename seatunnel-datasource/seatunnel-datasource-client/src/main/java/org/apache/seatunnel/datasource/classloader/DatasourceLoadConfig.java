@@ -109,6 +109,10 @@ public class DatasourceLoadConfig {
         classLoaderFactoryName.put(
                 "JDBC-DAMENG",
                 "org.apache.seatunnel.datasource.plugin.dameng.jdbc.DamengDataSourceFactory");
+        classLoaderFactoryName.put(
+                "HTTP", "org.apache.seatunnel.datasource.plugin.http.HttpDataSourceFactory");
+        classLoaderFactoryName.put(
+                "LOCALFILE", "org.apache.seatunnel.datasource.plugin.file.FileDataSourceFactory");
 
         classLoaderJarName.put("JDBC-ORACLE", "datasource-jdbc-oracle-");
         classLoaderJarName.put("JDBC-CLICKHOUSE", "datasource-jdbc-clickhouse-");
@@ -134,6 +138,8 @@ public class DatasourceLoadConfig {
         classLoaderJarName.put("FAKESOURCE", "datasource-fakesource-");
         classLoaderJarName.put("CONSOLE", "datasource-console-");
         classLoaderJarName.put("JDBC-DAMENG", "datasource-jdbc-dameng-");
+        classLoaderJarName.put("HTTP", "datasource-http-");
+        classLoaderJarName.put("LOCALFILE", "datasource-file-");
     }
 
     public static final Set<String> pluginSet =
@@ -156,7 +162,9 @@ public class DatasourceLoadConfig {
                     "JDBC-Db2",
                     "JDBC-DAMENG",
                     "FakeSource",
-                    "Console");
+                    "Console",
+                    "Http",
+                    "LocalFile");
 
     public static Map<String, DatasourceClassLoader> datasourceClassLoaders = new HashMap<>();
 

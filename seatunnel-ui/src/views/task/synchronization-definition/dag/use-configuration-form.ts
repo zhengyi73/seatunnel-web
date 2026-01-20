@@ -35,6 +35,14 @@ import { useSynchronizationDefinitionStore } from '@/store/synchronization-defin
 import type { NodeType, TableOption, State } from './types'
 import type { SelectOption } from 'naive-ui'
 
+// Datasources that don't support database/table selection (e.g., HTTP, File-based sources)
+export const NO_DATABASE_TABLE_DATASOURCES = ['HTTP', 'LOCALFILE']
+
+// Helper function to check if a datasource requires database/table selection
+export const isDatasourceWithoutDatabaseTable = (datasourceName: string): boolean => {
+  return NO_DATABASE_TABLE_DATASOURCES.includes(datasourceName?.toUpperCase())
+}
+
 export const useConfigurationForm = (
   nodeType: NodeType,
   transformType: string
@@ -128,6 +136,10 @@ export const useConfigurationForm = (
         required: true,
         trigger: ['input', 'blur'],
         validator: (ignore: any, value: string) => {
+          // Skip validation for datasources that don't support database selection
+          if (isDatasourceWithoutDatabaseTable(state.model.datasourceName)) {
+            return true
+          }
           if (!value) {
             return new Error(
               t('project.synchronization_definition.database_validate')
@@ -139,6 +151,10 @@ export const useConfigurationForm = (
         required: true,
         trigger: ['input', 'blur'],
         validator: (ignore: any, value: string) => {
+          // Skip validation for datasources that don't support table selection
+          if (isDatasourceWithoutDatabaseTable(state.model.datasourceName)) {
+            return true
+          }
           if (!value) {
             return new Error(
               t('project.synchronization_definition.table_name_validate')

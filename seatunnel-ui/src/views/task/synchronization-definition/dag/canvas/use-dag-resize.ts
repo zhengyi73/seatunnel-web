@@ -29,6 +29,7 @@ export function useDagResize(container: Ref<HTMLElement>, graph: Ref<Graph>) {
     }
   }, 200)
 
+  //useResizeObserver(container, resize)
   onMounted(() => {
     window.addEventListener('resize', resize)
     // 初始化时调用一次

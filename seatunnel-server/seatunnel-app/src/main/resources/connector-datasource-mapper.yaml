@@ -69,6 +69,14 @@ connector-datasource-mapper:
       dataSources:
         - Console
 
+    Http:
+      dataSources:
+        - Http
+
+    LocalFile:
+      dataSources:
+        - LocalFile
+
     Hive:
       dataSources:
         - Hive
@@ -178,6 +186,18 @@ connector-datasource-mapper:
       sceneMode:
         - SINGLE_TABLE
         - MULTIPLE_TABLE
+
+    Http:
+      businessMode:
+        - DATA_INTEGRATION
+      sceneMode:
+        - SINGLE_TABLE
+
+    LocalFile:
+      businessMode:
+        - DATA_INTEGRATION
+      sceneMode:
+        - SINGLE_TABLE
   sinkDatasourceFeatures:
     JDBC-Mysql:
       businessMode:
@@ -277,6 +297,18 @@ connector-datasource-mapper:
       sceneMode:
         - SINGLE_TABLE
         - MULTIPLE_TABLE
+
+    Http:
+      businessMode:
+        - DATA_INTEGRATION
+      sceneMode:
+        - SINGLE_TABLE
+
+    LocalFile:
+      businessMode:
+        - DATA_INTEGRATION
+      sceneMode:
+        - SINGLE_TABLE
 
     Hive:
       businessMode:

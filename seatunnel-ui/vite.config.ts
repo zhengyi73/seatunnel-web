@@ -40,11 +40,11 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       proxy: {
         '/seatunnel/api/v1': {
-          target: env.VITE_APP_DEV_WEB_URL || 'http://192.168.52.80:8801',
+          target: env.VITE_APP_DEV_WEB_URL || 'http://127.0.0.1:8801',
           changeOrigin: true
         },
         '/api': {
-          target: 'http://192.168.52.80:8080',
+          target: 'http://127.0.0.1:8080',
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, '')
         }

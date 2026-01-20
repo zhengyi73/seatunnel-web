@@ -33,7 +33,8 @@ import { DynamicFormItem } from '@/components/dynamic-form/dynamic-form-item'
 import { KINDS } from './config'
 import {
   useConfigurationForm,
-  getSceneModeOptions
+  getSceneModeOptions,
+  isDatasourceWithoutDatabaseTable
 } from './use-configuration-form'
 import { useI18n } from 'vue-i18n'
 import type { NodeType, TableOption, State } from './types'
@@ -216,7 +217,7 @@ const ConfigurationForm = defineComponent({
             </NFormItem>
           )}
 
-          {props.nodeType !== 'transform' && (
+          {props.nodeType !== 'transform' && !isDatasourceWithoutDatabaseTable(state.model.datasourceName) && (
             <NFormItem
               label={t('project.synchronization_definition.database')}
               path='database'
@@ -238,7 +239,8 @@ const ConfigurationForm = defineComponent({
           )}
 
           {dagStore.getDagInfo.jobType === 'DATA_INTEGRATION' &&
-            (props.nodeType === 'sink' || props.nodeType === 'source') && (
+            (props.nodeType === 'sink' || props.nodeType === 'source') &&
+            !isDatasourceWithoutDatabaseTable(state.model.datasourceName) && (
               <NFormItem
                 label={t('project.synchronization_definition.table_name')}
                 path='tableName'
@@ -261,7 +263,7 @@ const ConfigurationForm = defineComponent({
               </NFormItem>
             )}
 
-          {state.model.sceneMode === 'MULTIPLE_TABLE' && (
+          {state.model.sceneMode === 'MULTIPLE_TABLE' && !isDatasourceWithoutDatabaseTable(state.model.datasourceName) && (
             <NFormItem
               label={t('project.synchronization_definition.table_name')}
               path='tableName'
