@@ -55,8 +55,7 @@ public class JobDefinitionDaoImpl implements IJobDefinitionDao {
     public JobDefinition getJob(long id) {
         return jobMapper.selectOne(
                 Wrappers.<JobDefinition>lambdaQuery()
-                        .eq(JobDefinition::getId, id)
-                        .eq(JobDefinition::getWorkspaceId, getCurrentWorkspaceId()));
+                        .eq(JobDefinition::getId, id));
     }
 
     @Override
@@ -64,25 +63,24 @@ public class JobDefinitionDaoImpl implements IJobDefinitionDao {
         jobMapper.update(
                 jobDefinition,
                 Wrappers.<JobDefinition>lambdaUpdate()
-                        .eq(JobDefinition::getId, jobDefinition.getId())
-                        .eq(JobDefinition::getWorkspaceId, getCurrentWorkspaceId()));
+                        .eq(JobDefinition::getId, jobDefinition.getId()));
     }
 
     @Override
     public PageInfo<JobDefinitionRes> getJob(
-            String searchName, Integer pageNo, Integer pageSize, String jobMode) {
+            String searchName, Integer pageNo, Integer pageSize, String jobMode, Long workspaceId) {
         IPage<JobDefinitionRes> jobDefinitionIPage;
         if (StringUtils.isEmpty(jobMode)) {
             jobDefinitionIPage =
                     jobMapper.queryJobListPaging(
-                            new Page<>(pageNo, pageSize), searchName, getCurrentWorkspaceId());
+                            new Page<>(pageNo, pageSize), searchName, workspaceId);
         } else {
             jobDefinitionIPage =
                     jobMapper.queryJobListPagingWithJobMode(
                             new Page<>(pageNo, pageSize),
                             searchName,
                             jobMode,
-                            getCurrentWorkspaceId());
+                            workspaceId);
         }
         PageInfo<JobDefinitionRes> jobs = new PageInfo<>();
         jobs.setData(jobDefinitionIPage.getRecords());
@@ -106,8 +104,7 @@ public class JobDefinitionDaoImpl implements IJobDefinitionDao {
     public void delete(long id) {
         jobMapper.delete(
                 Wrappers.<JobDefinition>lambdaQuery()
-                        .eq(JobDefinition::getId, id)
-                        .eq(JobDefinition::getWorkspaceId, getCurrentWorkspaceId()));
+                        .eq(JobDefinition::getId, id));
     }
 
     @Override

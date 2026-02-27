@@ -48,7 +48,9 @@
       left join `user` cu on t.create_user_id = cu.id
       left join `user` uu on t.update_user_id = uu.id
     <where>
-      t.workspace_id = #{workspaceId}
+      <if test="workspaceId != null">
+        t.workspace_id = #{workspaceId}
+      </if>
       <if test="searchName!=null and searchName!= ''">
         and t.name LIKE concat('%', #{searchName}, '%')
       </if>
@@ -68,7 +70,9 @@
       left join `user` cu on t.create_user_id = cu.id
       left join `user` uu on t.update_user_id = uu.id
     <where>
-      t.workspace_id = #{workspaceId}
+      <if test="workspaceId != null">
+        t.workspace_id = #{workspaceId}
+      </if>
       <if test="searchName!=null and searchName != ''">
         and t.name LIKE concat('%', #{searchName}, '%')
       </if>

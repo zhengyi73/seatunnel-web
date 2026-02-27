@@ -1,0 +1,35 @@
+nacoshost: nacoshost:8848
+spring:
+  profiles:
+    active: credit_pro_${environment}
+  application:
+    name: seatunnel
+  cloud:
+    nacos:
+      discovery:
+        server-addr: ${nacoshost}
+        namespace: ${spring.profiles.active}
+      config:
+        enabled: true # 如果不想使用 Nacos 进行配置管理，设置为 false 即可
+        server-addr: ${nacoshost} # Nacos Server 地址
+        namespace: ${spring.profiles.active}
+        group: DEFAULT_GROUP # 组，默认为 DEFAULT_GROUP
+        file-extension: yml # 配置内容的数据格式，默认为 properties
+        shared-configs:
+          - data-id: env.yml
+            group: DEFAULT_GROUP
+            refresh: true
+          - data-id: common.yml
+            group: DEFAULT_GROUP
+            refresh: true
+          - data-id: framework.yml
+            group: DEFAULT_GROUP
+            refresh: true
+          - data-id: open-platform.yml
+            group: DEFAULT_GROUP
+            refresh: true
+          - data-id: data-source.yml
+            group: DEFAULT_GROUP
+            refresh: true
+      username: nacos
+      password: "!QAZ2wsx"

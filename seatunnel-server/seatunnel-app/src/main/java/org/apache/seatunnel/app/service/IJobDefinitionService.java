@@ -36,7 +36,7 @@ public interface IJobDefinitionService {
     PageInfo<JobDefinitionRes> getJob(String name, Integer pageNo, Integer pageSize);
 
     PageInfo<JobDefinitionRes> getJob(
-            String name, Integer pageNo, Integer pageSize, String jobMode);
+            String name, Integer pageNo, Integer pageSize, String jobMode, Long workspaceId);
 
     Map<Long, String> getJob(@NonNull String name);
 
@@ -45,6 +45,8 @@ public interface IJobDefinitionService {
     List<JobVersion> getJobVersionByDataSourceId(long datasourceId);
 
     boolean getUsedByDataSourceIdAndVirtualTable(long datasourceId, String tableName);
+
+    void updateJob(long jobId, JobReq jobReq);
 
     void deleteJob(long id);
 

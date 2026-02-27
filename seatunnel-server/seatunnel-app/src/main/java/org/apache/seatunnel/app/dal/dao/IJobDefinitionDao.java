@@ -34,7 +34,7 @@ public interface IJobDefinitionDao {
     void updateJob(JobDefinition jobDefinition);
 
     PageInfo<JobDefinitionRes> getJob(
-            String name, Integer pageNo, Integer pageSize, String jobMode);
+            String name, Integer pageNo, Integer pageSize, String jobMode, Long workspaceId);
 
     List<JobDefinition> getJobList(@NonNull String name);
 

@@ -110,12 +110,12 @@ public class JobDefinitionServiceImpl extends SeatunnelBaseServiceImpl
 
     @Override
     public PageInfo<JobDefinitionRes> getJob(String name, Integer pageNo, Integer pageSize) {
-        return getJob(name, pageNo, pageSize, null);
+        return getJob(name, pageNo, pageSize, null, null);
     }
 
     @Override
     public PageInfo<JobDefinitionRes> getJob(
-            String searchName, Integer pageNo, Integer pageSize, String jobMode) {
+            String searchName, Integer pageNo, Integer pageSize, String jobMode, Long workspaceId) {
         if (StringUtils.isNotEmpty(jobMode)) {
             try {
                 JobMode.valueOf(jobMode);
@@ -125,7 +125,7 @@ public class JobDefinitionServiceImpl extends SeatunnelBaseServiceImpl
             }
         }
         PageInfo<JobDefinitionRes> job =
-                jobDefinitionDao.getJob(searchName, pageNo, pageSize, jobMode);
+                jobDefinitionDao.getJob(searchName, pageNo, pageSize, jobMode, workspaceId);
         if (CollectionUtils.isEmpty(job.getData())) {
             return job;
         }
@@ -198,6 +198,27 @@ public class JobDefinitionServiceImpl extends SeatunnelBaseServiceImpl
                         .filter(Objects::nonNull)
                         .collect(Collectors.toList());
         return options.stream().anyMatch(option -> option.getTables().contains(tableName));
+    }
+
+    @Override
+    public void updateJob(long jobId, JobReq jobReq) {
+        JobDefinition job = jobDefinitionDao.getJob(jobId);
+        if (job == null) {
+            throw new SeatunnelException(SeatunnelErrorEnum.ILLEGAL_STATE, "Job not found");
+        }
+        permCheck(job.getName(), AccessType.UPDATE);
+        Integer userId = ServletUtils.getCurrentUserId();
+        job.setName(jobReq.getName());
+        job.setDescription(jobReq.getDescription());
+        if (jobReq.getJobType() != null) {
+            job.setJobType(jobReq.getJobType().name());
+        }
+        if (jobReq.getWorkspaceId() != null) {
+            job.setWorkspaceId(jobReq.getWorkspaceId());
+        }
+        job.setUpdateUserId(userId);
+        job.setUpdateTime(new java.util.Date());
+        jobDefinitionDao.updateJob(job);
     }
 
     @Override

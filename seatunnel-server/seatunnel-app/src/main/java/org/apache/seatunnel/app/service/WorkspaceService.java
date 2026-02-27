@@ -40,4 +40,8 @@ public interface WorkspaceService {
     Long getWorkspaceIdOrCurrent(String workspaceName);
 
     List<String> getWorkspaceNames(String searchName);
+
+    org.apache.seatunnel.app.domain.response.PageInfo<Workspace> getWorkspacesPaging(String workspaceName,
+            Integer pageNo,
+            Integer pageSize);
 }

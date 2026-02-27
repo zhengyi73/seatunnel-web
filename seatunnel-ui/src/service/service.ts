@@ -70,13 +70,17 @@ service.interceptors.response.use((res: AxiosResponse) => {
   if (res.data.code === undefined) {
     return res.data
   }
-
+  console.log(res, '***')
   if (res.data.success) return res.data.data
 
   switch (res.data.code) {
     case 0:
       return res.data.data
-    
+    case 10008:
+      userStore.setUserInfo({})
+      router.push({ path: '/login' })
+      handleError(res)
+      throw new Error()
     default:
       handleError(res)
       throw new Error()

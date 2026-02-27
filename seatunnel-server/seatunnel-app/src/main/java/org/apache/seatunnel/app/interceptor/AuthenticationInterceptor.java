@@ -31,6 +31,7 @@ import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import cn.dev33.satoken.stp.StpUtil;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.annotation.Resource;
@@ -52,9 +53,9 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
     @Resource private JwtUtils jwtUtils;
 
-    @Override
+    // @Override
     @SuppressWarnings("MagicNumber")
-    public boolean preHandle(
+    public boolean preHandle1(
             HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         if (request.getMethod().equals(OPTIONS)) {
@@ -116,6 +117,98 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         request.setAttribute(Constants.SESSION_USER_CONTEXT, userContext);
 
         request.setAttribute("userId", userId);
+        return true;
+    }
+
+    @Override
+    @SuppressWarnings("MagicNumber")
+    public boolean preHandle(
+            HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws Exception {
+        if (request.getMethod().equals(OPTIONS)) {
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Allow-Headers", "*");
+            response.setHeader("Access-Control-Allow-Methods", "*");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Max-Age", "3600");
+            return true;
+        }
+
+        final String authorization = request.getHeader("Authorization");
+        if (StringUtils.isBlank(authorization)) {
+            log.info("Authorization header does not exist, trying fallback authentication");
+            // 尝试使用 preHandle1 作为后备验证
+            return preHandle1(request, response, handler);
+        }
+
+        // 解析 Bearer token
+        final String token;
+        if (authorization.startsWith("Bearer ")) {
+            token = authorization.substring(7);
+        } else {
+            log.info("Invalid Authorization format, trying fallback authentication");
+            // 尝试使用 preHandle1 作为后备验证
+            return preHandle1(request, response, handler);
+        }
+
+        // 使用 Sa-Token 验证 token（与 login-auth-api 共享认证）
+        Object loginId;
+        try {
+            loginId = StpUtil.getLoginIdByToken(token);
+        } catch (Exception e) {
+            log.info(
+                    "Sa-Token validation failed: {}, trying fallback authentication",
+                    e.getMessage());
+            // Sa-Token 验证失败，尝试使用 preHandle1 作为后备验证
+            return preHandle1(request, response, handler);
+        }
+
+        if (Objects.isNull(loginId)) {
+            log.info("loginId does not exist for token, trying fallback authentication");
+            // 尝试使用 preHandle1 作为后备验证
+            return preHandle1(request, response, handler);
+        }
+
+        // 从 token session 中获取用户信息
+        String userName = String.valueOf(loginId);
+        try {
+            // 尝试从 token session 获取用户名
+            Object userNameObj = StpUtil.getExtra("userName");
+            if (userNameObj != null) {
+                userName = String.valueOf(userNameObj);
+            }
+        } catch (Exception e) {
+            log.debug("Failed to get userName from token session: {}", e.getMessage());
+        }
+
+        // 构建用户对象
+        User user = new User();
+        user.setUsername(userName);
+        // 将 loginId 转换为 Integer（如果是数字字符串）
+        try {
+            user.setId(Integer.parseInt(String.valueOf(loginId)));
+        } catch (NumberFormatException e) {
+            user.setId(0); // 默认 ID
+        }
+
+        log.debug(
+                "Setting user to request attributes: userId={}, username={}",
+                user.getId(),
+                user.getUsername());
+
+        UserContext userContext = new UserContext();
+        userContext.setUser(user);
+        // 默认 workspaceId 为 1
+        userContext.setWorkspaceId(1L);
+
+        AccessInfo accessInfo = new AccessInfo();
+        accessInfo.setUsername(user.getUsername());
+        accessInfo.setWorkspaceName("default");
+        userContext.setAccessInfo(accessInfo);
+
+        request.setAttribute(Constants.SESSION_USER_CONTEXT, userContext);
+        request.setAttribute("userId", user.getId());
+
         return true;
     }
 

@@ -90,7 +90,13 @@ public class TaskInstanceServiceImpl extends SeatunnelBaseServiceImpl
 
         IPage<SeaTunnelJobInstanceDto> jobInstanceIPage =
                 jobInstanceDao.queryJobInstanceListPaging(
-                        new Page<>(pageNo, pageSize), startDate, endDate, jobDefineName, jobMode);
+                        new Page<>(pageNo, pageSize),
+                        startDate,
+                        endDate,
+                        jobDefineName,
+                        executorName,
+                        convertStateType(stateType),
+                        jobMode);
 
         List<SeaTunnelJobInstanceDto> records = jobInstanceIPage.getRecords();
         List<SeaTunnelJobInstanceDto> filteredRecords =
@@ -136,12 +142,33 @@ public class TaskInstanceServiceImpl extends SeatunnelBaseServiceImpl
     }
 
     public Date dateConverter(String time) {
+        if (time == null || time.trim().isEmpty()) {
+            return null;
+        }
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         try {
             return dateFormat.parse(time);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private String convertStateType(String stateType) {
+        if (stateType == null) {
+            return null;
+        }
+        switch (stateType) {
+            case "FAILURE":
+                return "FAILED";
+            case "SUCCESS":
+                return "FINISHED";
+            case "RUNNING_EXECUTION":
+                return "RUNNING";
+            case "STOP":
+                return "CANCELED";
+            default:
+                return stateType;
         }
     }
 

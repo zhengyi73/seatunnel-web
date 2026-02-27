@@ -27,4 +27,14 @@
         where #{searchName} IS NULL OR workspace_name LIKE concat('%', #{searchName}, '%')
         order by update_time desc
     </select>
+    <select id="queryWorkspacesPaging" resultType="org.apache.seatunnel.app.dal.entity.Workspace">
+        select id, workspace_name, description, create_time, update_time
+        from workspace
+        <where>
+            <if test="workspaceName != null and workspaceName != ''">
+                workspace_name LIKE concat('%', #{workspaceName}, '%')
+            </if>
+        </where>
+        order by update_time desc
+    </select>
 </mapper>

@@ -82,9 +82,18 @@ public class JobInstanceDaoImpl implements IJobInstanceDao {
             Date startTime,
             Date endTime,
             String jobDefineName,
+            String executorName,
+            String stateType,
             JobMode jobMode) {
         return jobInstanceMapper.queryJobInstanceListPaging(
-                page, startTime, endTime, jobDefineName, jobMode, getWorkspaceId());
+                page,
+                startTime,
+                endTime,
+                jobDefineName,
+                executorName,
+                stateType,
+                jobMode,
+                getWorkspaceId());
     }
 
     @Override

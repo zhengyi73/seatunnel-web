@@ -61,4 +61,7 @@ public class JobDefinitionRes {
 
     @ApiModelProperty(value = "project name", dataType = "String")
     private String projectName;
+
+    @ApiModelProperty(value = "workspace id", dataType = "Long")
+    private Long workspaceId;
 }

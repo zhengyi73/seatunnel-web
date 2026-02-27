@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -71,14 +72,23 @@ public class JobDefinitionController {
             @ApiParam(value = "job name") @RequestParam(required = false) String searchName,
             @ApiParam(value = "page num", required = true) @RequestParam Integer pageNo,
             @ApiParam(value = "page size", required = true) @RequestParam Integer pageSize,
-            @ApiParam(value = "job mode") @RequestParam(required = false) String jobMode) {
-        return Result.success(jobService.getJob(searchName, pageNo, pageSize, jobMode));
+            @ApiParam(value = "job mode") @RequestParam(required = false) String jobMode,
+            @ApiParam(value = "workspace id") @RequestParam(required = false) Long workspaceId) {
+        return Result.success(jobService.getJob(searchName, pageNo, pageSize, jobMode, workspaceId));
     }
 
     @GetMapping("/{jobId}")
     @ApiOperation(value = "get job definition", httpMethod = "GET")
     Result<JobDefinition> getJobDefinition(@PathVariable long jobId) {
         return Result.success(jobService.getJobDefinitionByJobId(jobId));
+    }
+
+    @PutMapping("/{jobId}")
+    @ApiOperation(value = "update job definition", httpMethod = "PUT")
+    Result<Void> updateJobDefinition(
+            @PathVariable long jobId, @RequestBody JobReq jobReq) {
+        jobService.updateJob(jobId, jobReq);
+        return Result.success();
     }
 
     @DeleteMapping

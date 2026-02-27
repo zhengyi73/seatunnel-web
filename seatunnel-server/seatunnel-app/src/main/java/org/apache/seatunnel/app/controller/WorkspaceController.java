@@ -32,6 +32,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import org.springframework.web.bind.annotation.RequestParam;
+import org.apache.seatunnel.app.domain.response.PageInfo;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+
 import java.util.List;
 
 @RestController
@@ -65,5 +70,14 @@ public class WorkspaceController {
     public Result<Workspace> getWorkspace(@PathVariable Long id) {
         Workspace workspaceById = workspaceService.getWorkspace(id);
         return Result.success(workspaceById);
+    }
+
+    @GetMapping("/page")
+    @ApiOperation(value = "get workspaces paging", httpMethod = "GET")
+    public Result<PageInfo<Workspace>> getWorkspacesPaging(
+            @ApiParam(value = "workspace name") @RequestParam(required = false) String workspaceName,
+            @ApiParam(value = "page num", required = true) @RequestParam Integer pageNo,
+            @ApiParam(value = "page size", required = true) @RequestParam Integer pageSize) {
+        return Result.success(workspaceService.getWorkspacesPaging(workspaceName, pageNo, pageSize));
     }
 }

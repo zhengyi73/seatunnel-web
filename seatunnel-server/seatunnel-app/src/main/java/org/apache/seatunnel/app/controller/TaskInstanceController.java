@@ -45,7 +45,7 @@ public class TaskInstanceController {
             @RequestParam(name = "stateType", required = false) String stateType,
             @RequestParam(name = "startDate", required = false) String startTime,
             @RequestParam(name = "endDate", required = false) String endTime,
-            @RequestParam("syncTaskType") JobMode jobMode,
+            @RequestParam(name = "syncTaskType", required = false) JobMode jobMode,
             @RequestParam("pageNo") Integer pageNo,
             @RequestParam("pageSize") Integer pageSize) {
         return taskInstanceService.getSyncTaskInstancePaging(

@@ -35,4 +35,8 @@ public interface IWorkspaceDao {
     List<Workspace> selectAllWorkspaces();
 
     List<String> getWorkspaceNames(String searchName);
+
+    org.apache.seatunnel.app.domain.response.PageInfo<Workspace> getWorkspacesPaging(String workspaceName,
+            Integer pageNo,
+            Integer pageSize);
 }

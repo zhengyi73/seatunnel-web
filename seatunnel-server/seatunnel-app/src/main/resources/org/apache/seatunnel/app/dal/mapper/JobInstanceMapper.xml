@@ -42,9 +42,6 @@
             <if test="startTime != null">
                 AND ji.create_time <![CDATA[ >=]]> #{startTime}
             </if>
-            <if test="endTime == null">
-                AND (ji.end_time is null or ji.end_time <![CDATA[ <=]]> #{endTime})
-            </if>
             <if test="endTime != null">
                 AND (ji.end_time <![CDATA[ <=]]> #{endTime} or ji.end_time is null)
             </if>
@@ -53,6 +50,12 @@
             </if>
             <if test="jobMode != null">
                 AND ji.job_type = #{jobMode}
+            </if>
+            <if test="executorName != null and executorName != ''">
+                AND cu.username LIKE concat('%', #{executorName}, '%')
+            </if>
+            <if test="stateType != null and stateType != ''">
+                AND ji.job_status = #{stateType}
             </if>
         </where>
         ORDER BY ji.create_time DESC
