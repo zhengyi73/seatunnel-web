@@ -185,9 +185,42 @@ public class TaskInstanceServiceImpl extends SeatunnelBaseServiceImpl
                 }
             }
 
-            Map<Long, JobSummaryMetricsRes> jobSummaryMetrics =
-                    jobMetricsService.getALLJobSummaryMetrics(
-                            jobInstanceIdAndJobEngineIdMap, jobInstanceIdList, jobMode);
+            if (jobInstanceIdList.isEmpty()) {
+                return;
+            }
+
+            Map<Long, JobSummaryMetricsRes> jobSummaryMetrics;
+
+            if (jobMode != null) {
+                jobSummaryMetrics = jobMetricsService.getALLJobSummaryMetrics(
+                        jobInstanceIdAndJobEngineIdMap, jobInstanceIdList, jobMode);
+            } else {
+                // When jobMode is not specified, group by each job's own jobType
+                jobSummaryMetrics = new HashMap<>();
+                Map<JobMode, List<SeaTunnelJobInstanceDto>> groupedByType = new HashMap<>();
+                for (SeaTunnelJobInstanceDto record : records) {
+                    if (record.getId() != null && record.getJobEngineId() != null && record.getJobType() != null) {
+                        groupedByType.computeIfAbsent(record.getJobType(), k -> new ArrayList<>()).add(record);
+                    }
+                }
+                for (Map.Entry<JobMode, List<SeaTunnelJobInstanceDto>> entry : groupedByType.entrySet()) {
+                    ArrayList<Long> groupIdList = new ArrayList<>();
+                    HashMap<Long, Long> groupIdAndEngineIdMap = new HashMap<>();
+                    for (SeaTunnelJobInstanceDto dto : entry.getValue()) {
+                        groupIdList.add(dto.getId());
+                        groupIdAndEngineIdMap.put(dto.getId(), Long.valueOf(dto.getJobEngineId()));
+                    }
+                    Map<Long, JobSummaryMetricsRes> groupResult = jobMetricsService.getALLJobSummaryMetrics(
+                            groupIdAndEngineIdMap, groupIdList, entry.getKey());
+                    if (groupResult != null) {
+                        jobSummaryMetrics.putAll(groupResult);
+                    }
+                }
+            }
+
+            if (jobSummaryMetrics == null) {
+                return;
+            }
 
             for (SeaTunnelJobInstanceDto taskInstance : records) {
                 if (jobSummaryMetrics.get(taskInstance.getId()) != null) {
@@ -195,6 +228,10 @@ public class TaskInstanceServiceImpl extends SeatunnelBaseServiceImpl
                             jobSummaryMetrics.get(taskInstance.getId()).getWriteRowCount());
                     taskInstance.setReadRowCount(
                             jobSummaryMetrics.get(taskInstance.getId()).getReadRowCount());
+                    if (jobSummaryMetrics.get(taskInstance.getId()).getStatus() != null) {
+                        taskInstance.setJobStatus(
+                                jobSummaryMetrics.get(taskInstance.getId()).getStatus());
+                    }
                 }
             }
         } catch (Exception e) {
