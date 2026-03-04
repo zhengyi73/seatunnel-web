@@ -42,6 +42,52 @@ import java.util.List;
 @AutoService(DataSourceConfigSwitcher.class)
 public class S3DataSourceConfigSwitcher extends AbstractDataSourceConfigSwitcher {
 
+    private static String getDateFormatPattern(Object formatObj) {
+        if (formatObj == null) {
+            return "yyyy-MM-dd";
+        }
+        String format = formatObj.toString();
+        try {
+            return org.apache.seatunnel.common.utils.DateUtils.Formatter.valueOf(format).getValue();
+        } catch (IllegalArgumentException e) {
+            if ("YYYY_MM_DD".equals(format)) return "yyyy-MM-dd";
+            if ("YYYY_MM_DD_SPOT".equals(format)) return "yyyy.MM.dd";
+            if ("YYYY_MM_DD_SLASH".equals(format)) return "yyyy/MM/dd";
+            return format;
+        }
+    }
+
+    private static String getDateTimeFormatPattern(Object formatObj) {
+        if (formatObj == null) {
+            return "yyyy-MM-dd HH:mm:ss";
+        }
+        String format = formatObj.toString();
+        try {
+            return org.apache.seatunnel.common.utils.DateTimeUtils.Formatter.valueOf(format)
+                    .getValue();
+        } catch (IllegalArgumentException e) {
+            if ("YYYY_MM_DD_HH_MM_SS".equals(format)) return "yyyy-MM-dd HH:mm:ss";
+            if ("YYYY_MM_DD_HH_MM_SS_SSSSSS".equals(format)) return "yyyy-MM-dd HH:mm:ss.SSSSSS";
+            if ("YYYY_MM_DD_HH_MM_SS_SPOT".equals(format)) return "yyyy.MM.dd HH:mm:ss";
+            if ("YYYY_MM_DD_HH_MM_SS_SLASH".equals(format)) return "yyyy/MM/dd HH:mm:ss";
+            return format;
+        }
+    }
+
+    private static String getTimeFormatPattern(Object formatObj) {
+        if (formatObj == null) {
+            return "HH:mm:ss";
+        }
+        String format = formatObj.toString();
+        try {
+            return org.apache.seatunnel.common.utils.TimeUtils.Formatter.valueOf(format).getValue();
+        } catch (IllegalArgumentException e) {
+            if ("HH_MM_SS".equals(format)) return "HH:mm:ss";
+            if ("HH_MM_SS_SSS".equals(format)) return "HH:mm:ss.SSS";
+            return format;
+        }
+    }
+
     public S3DataSourceConfigSwitcher() {}
 
     @Override
@@ -60,9 +106,11 @@ public class S3DataSourceConfigSwitcher extends AbstractDataSourceConfigSwitcher
             List<RequiredOption> addRequiredOptions,
             List<Option<?>> addOptionalOptions,
             List<String> excludedKeys) {
-        excludedKeys.add(S3OptionRule.PATH.key());
         if (PluginType.SOURCE.equals(pluginType)) {
             excludedKeys.add(S3OptionRule.SCHEMA.key());
+            // Manually add the schema option back as an optional field so it renders
+            // in the UI without the problematic conditional show rule (same as HTTP).
+            addOptionalOptions.add(org.apache.seatunnel.api.options.ConnectorCommonOptions.SCHEMA);
         }
 
         return super.filterOptionRule(
@@ -87,53 +135,66 @@ public class S3DataSourceConfigSwitcher extends AbstractDataSourceConfigSwitcher
             PluginType pluginType,
             Config connectorConfig) {
         if (PluginType.SOURCE.equals(pluginType)) {
-            connectorConfig =
-                    connectorConfig
-                            .withValue(
+            // When virtualTableDetail is available (virtual table mode), merge schema
+            // and other properties from the virtual table definition.
+            // When it's null (DAG mode without database/table), skip this —
+            // schema comes from user's manual input or auto-injection.
+            if (virtualTableDetail != null && selectTableFields != null) {
+                if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(
+                        selectTableFields.getTableFields())) {
+                    connectorConfig =
+                            connectorConfig.withValue(
                                     S3OptionRule.SCHEMA.key(),
                                     KafkaKingbaseDataSourceConfigSwitcher.SchemaGenerator
                                             .generateSchemaBySelectTableFields(
                                                     virtualTableDetail, selectTableFields)
-                                            .root())
-                            .withValue(
-                                    S3OptionRule.PATH.key(),
-                                    ConfigValueFactory.fromAnyRef(
-                                            virtualTableDetail
-                                                    .getDatasourceProperties()
-                                                    .get(S3OptionRule.PATH.key())))
-                            .withValue(
-                                    S3OptionRule.TYPE.key(),
-                                    ConfigValueFactory.fromAnyRef(
-                                            virtualTableDetail
-                                                    .getDatasourceProperties()
-                                                    .get(S3OptionRule.TYPE.key())))
-                            .withValue(
-                                    S3OptionRule.PARSE_PARSE_PARTITION_FROM_PATH.key(),
-                                    ConfigValueFactory.fromAnyRef(
-                                            virtualTableDetail
-                                                    .getDatasourceProperties()
-                                                    .get(
-                                                            S3OptionRule
-                                                                    .PARSE_PARSE_PARTITION_FROM_PATH
-                                                                    .key())))
-                            .withValue(
-                                    S3OptionRule.DATE_FORMAT.key(),
-                                    ConfigValueFactory.fromAnyRef(
-                                            virtualTableDetail
-                                                    .getDatasourceProperties()
-                                                    .get(S3OptionRule.DATE_FORMAT.key())))
-                            .withValue(
-                                    S3OptionRule.DATETIME_FORMAT.key(),
-                                    ConfigValueFactory.fromAnyRef(
-                                            virtualTableDetail
-                                                    .getDatasourceProperties()
-                                                    .get(S3OptionRule.DATETIME_FORMAT.key())))
-                            .withValue(
-                                    S3OptionRule.TIME_FORMAT.key(),
-                                    ConfigValueFactory.fromAnyRef(
-                                            virtualTableDetail
-                                                    .getDatasourceProperties()
-                                                    .get(S3OptionRule.TIME_FORMAT.key())));
+                                            .root());
+                }
+                connectorConfig =
+                        connectorConfig
+                                .withValue(
+                                        S3OptionRule.PATH.key(),
+                                        ConfigValueFactory.fromAnyRef(
+                                                virtualTableDetail
+                                                        .getDatasourceProperties()
+                                                        .get(S3OptionRule.PATH.key())))
+                                .withValue(
+                                        S3OptionRule.TYPE.key(),
+                                        ConfigValueFactory.fromAnyRef(
+                                                virtualTableDetail
+                                                        .getDatasourceProperties()
+                                                        .get(S3OptionRule.TYPE.key())))
+                                .withValue(
+                                        S3OptionRule.PARSE_PARSE_PARTITION_FROM_PATH.key(),
+                                        ConfigValueFactory.fromAnyRef(
+                                                virtualTableDetail
+                                                        .getDatasourceProperties()
+                                                        .get(
+                                                                S3OptionRule
+                                                                        .PARSE_PARSE_PARTITION_FROM_PATH
+                                                                        .key())))
+                                .withValue(
+                                        "date_format",
+                                        ConfigValueFactory.fromAnyRef(
+                                                getDateFormatPattern(
+                                                        virtualTableDetail
+                                                                .getDatasourceProperties()
+                                                                .get("date_format"))))
+                                .withValue(
+                                        "datetime_format",
+                                        ConfigValueFactory.fromAnyRef(
+                                                getDateTimeFormatPattern(
+                                                        virtualTableDetail
+                                                                .getDatasourceProperties()
+                                                                .get("datetime_format"))))
+                                .withValue(
+                                        "time_format",
+                                        ConfigValueFactory.fromAnyRef(
+                                                getTimeFormatPattern(
+                                                        virtualTableDetail
+                                                                .getDatasourceProperties()
+                                                                .get("time_format"))));
+            }
         } else if (PluginType.SINK.equals(pluginType)) {
             if (virtualTableDetail.getDatasourceProperties().get(S3OptionRule.TIME_FORMAT.key())
                     == null) {
@@ -163,23 +224,47 @@ public class S3DataSourceConfigSwitcher extends AbstractDataSourceConfigSwitcher
                                                                     .PARSE_PARSE_PARTITION_FROM_PATH
                                                                     .key())))
                             .withValue(
-                                    S3OptionRule.DATE_FORMAT.key(),
+                                    "date_format",
                                     ConfigValueFactory.fromAnyRef(
                                             virtualTableDetail
                                                     .getDatasourceProperties()
-                                                    .get(S3OptionRule.DATE_FORMAT.key())))
+                                                    .get("date_format")))
                             .withValue(
-                                    S3OptionRule.DATETIME_FORMAT.key(),
+                                    "datetime_format",
                                     ConfigValueFactory.fromAnyRef(
                                             virtualTableDetail
                                                     .getDatasourceProperties()
-                                                    .get(S3OptionRule.DATETIME_FORMAT.key())))
+                                                    .get("datetime_format")))
                             .withValue(
-                                    S3OptionRule.TIME_FORMAT.key(),
+                                    "time_format",
                                     ConfigValueFactory.fromAnyRef(
                                             virtualTableDetail
                                                     .getDatasourceProperties()
-                                                    .get(S3OptionRule.TIME_FORMAT.key())));
+                                                    .get("time_format")));
+        }
+        if (connectorConfig.hasPath("date_format")) {
+            connectorConfig =
+                    connectorConfig.withValue(
+                            "date_format",
+                            ConfigValueFactory.fromAnyRef(
+                                    getDateFormatPattern(
+                                            connectorConfig.getString("date_format"))));
+        }
+        if (connectorConfig.hasPath("datetime_format")) {
+            connectorConfig =
+                    connectorConfig.withValue(
+                            "datetime_format",
+                            ConfigValueFactory.fromAnyRef(
+                                    getDateTimeFormatPattern(
+                                            connectorConfig.getString("datetime_format"))));
+        }
+        if (connectorConfig.hasPath("time_format")) {
+            connectorConfig =
+                    connectorConfig.withValue(
+                            "time_format",
+                            ConfigValueFactory.fromAnyRef(
+                                    getTimeFormatPattern(
+                                            connectorConfig.getString("time_format"))));
         }
         return super.mergeDatasourceConfig(
                 dataSourceInstanceConfig,

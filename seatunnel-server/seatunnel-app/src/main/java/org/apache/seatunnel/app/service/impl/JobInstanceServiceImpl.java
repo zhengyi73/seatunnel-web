@@ -497,6 +497,16 @@ public class JobInstanceServiceImpl extends SeatunnelBaseServiceImpl
                         || "XML".equals(fileFormatType)) {
                     needsSchemaInjection = true;
                 }
+            } else if ("S3".equalsIgnoreCase(pluginName)
+                    && connectorConfig.hasPath("file_format_type")) {
+                String fileFormatType = connectorConfig.getString("file_format_type").toUpperCase();
+                if ("TEXT".equals(fileFormatType)
+                        || "JSON".equals(fileFormatType)
+                        || "EXCEL".equals(fileFormatType)
+                        || "CSV".equals(fileFormatType)
+                        || "XML".equals(fileFormatType)) {
+                    needsSchemaInjection = true;
+                }
             }
         }
         if (needsSchemaInjection) {
