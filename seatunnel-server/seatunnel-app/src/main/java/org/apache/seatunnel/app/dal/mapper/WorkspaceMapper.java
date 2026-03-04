@@ -19,14 +19,16 @@ package org.apache.seatunnel.app.dal.mapper;
 
 import org.apache.seatunnel.app.dal.entity.Workspace;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Param;
+
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 import java.util.List;
 
 public interface WorkspaceMapper extends BaseMapper<Workspace> {
     List<String> getWorkspaceNames(String searchName);
 
-    IPage<Workspace> queryWorkspacesPaging(IPage<Workspace> page, @Param("workspaceName") String workspaceName);
+    IPage<Workspace> queryWorkspacesPaging(
+            IPage<Workspace> page, @Param("workspaceName") String workspaceName);
 }

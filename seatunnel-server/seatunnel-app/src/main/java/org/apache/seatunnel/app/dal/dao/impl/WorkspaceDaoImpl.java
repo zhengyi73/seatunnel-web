@@ -69,11 +69,15 @@ public class WorkspaceDaoImpl implements IWorkspaceDao {
     }
 
     @Override
-    public org.apache.seatunnel.app.domain.response.PageInfo<Workspace> getWorkspacesPaging(String workspaceName,
-            Integer pageNo, Integer pageSize) {
-        com.baomidou.mybatisplus.core.metadata.IPage<Workspace> page = workspaceMapper.queryWorkspacesPaging(
-                new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(pageNo, pageSize), workspaceName);
-        org.apache.seatunnel.app.domain.response.PageInfo<Workspace> pageInfo = new org.apache.seatunnel.app.domain.response.PageInfo<>();
+    public org.apache.seatunnel.app.domain.response.PageInfo<Workspace> getWorkspacesPaging(
+            String workspaceName, Integer pageNo, Integer pageSize) {
+        com.baomidou.mybatisplus.core.metadata.IPage<Workspace> page =
+                workspaceMapper.queryWorkspacesPaging(
+                        new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(
+                                pageNo, pageSize),
+                        workspaceName);
+        org.apache.seatunnel.app.domain.response.PageInfo<Workspace> pageInfo =
+                new org.apache.seatunnel.app.domain.response.PageInfo<>();
         pageInfo.setData(page.getRecords());
         pageInfo.setPageNo(pageNo);
         pageInfo.setPageSize(pageSize);

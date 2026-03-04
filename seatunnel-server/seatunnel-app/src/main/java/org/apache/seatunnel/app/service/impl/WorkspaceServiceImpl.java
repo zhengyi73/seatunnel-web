@@ -171,19 +171,21 @@ public class WorkspaceServiceImpl extends SeatunnelBaseServiceImpl implements Wo
     }
 
     @Override
-    public org.apache.seatunnel.app.domain.response.PageInfo<Workspace> getWorkspacesPaging(String workspaceName,
-            Integer pageNo, Integer pageSize) {
-        org.apache.seatunnel.app.domain.response.PageInfo<Workspace> pageInfo = workspaceDao
-                .getWorkspacesPaging(workspaceName, pageNo, pageSize);
+    public org.apache.seatunnel.app.domain.response.PageInfo<Workspace> getWorkspacesPaging(
+            String workspaceName, Integer pageNo, Integer pageSize) {
+        org.apache.seatunnel.app.domain.response.PageInfo<Workspace> pageInfo =
+                workspaceDao.getWorkspacesPaging(workspaceName, pageNo, pageSize);
         if (org.apache.commons.collections4.CollectionUtils.isEmpty(pageInfo.getData())) {
             return pageInfo;
         }
 
-        List<Workspace> filteredWorkspaces = pageInfo.getData().stream()
-                .filter(workspace -> hasReadPerm(workspace.getWorkspaceName()))
-                .collect(Collectors.toList());
+        List<Workspace> filteredWorkspaces =
+                pageInfo.getData().stream()
+                        .filter(workspace -> hasReadPerm(workspace.getWorkspaceName()))
+                        .collect(Collectors.toList());
 
-        org.apache.seatunnel.app.domain.response.PageInfo<Workspace> result = new org.apache.seatunnel.app.domain.response.PageInfo<>();
+        org.apache.seatunnel.app.domain.response.PageInfo<Workspace> result =
+                new org.apache.seatunnel.app.domain.response.PageInfo<>();
         result.setData(filteredWorkspaces);
         result.setPageSize(pageSize);
         result.setPageNo(pageNo);

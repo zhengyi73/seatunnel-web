@@ -41,7 +41,6 @@ public interface WorkspaceService {
 
     List<String> getWorkspaceNames(String searchName);
 
-    org.apache.seatunnel.app.domain.response.PageInfo<Workspace> getWorkspacesPaging(String workspaceName,
-            Integer pageNo,
-            Integer pageSize);
+    org.apache.seatunnel.app.domain.response.PageInfo<Workspace> getWorkspacesPaging(
+            String workspaceName, Integer pageNo, Integer pageSize);
 }

@@ -74,7 +74,8 @@ public class JobDefinitionController {
             @ApiParam(value = "page size", required = true) @RequestParam Integer pageSize,
             @ApiParam(value = "job mode") @RequestParam(required = false) String jobMode,
             @ApiParam(value = "workspace id") @RequestParam(required = false) Long workspaceId) {
-        return Result.success(jobService.getJob(searchName, pageNo, pageSize, jobMode, workspaceId));
+        return Result.success(
+                jobService.getJob(searchName, pageNo, pageSize, jobMode, workspaceId));
     }
 
     @GetMapping("/{jobId}")
@@ -85,8 +86,7 @@ public class JobDefinitionController {
 
     @PutMapping("/{jobId}")
     @ApiOperation(value = "update job definition", httpMethod = "PUT")
-    Result<Void> updateJobDefinition(
-            @PathVariable long jobId, @RequestBody JobReq jobReq) {
+    Result<Void> updateJobDefinition(@PathVariable long jobId, @RequestBody JobReq jobReq) {
         jobService.updateJob(jobId, jobReq);
         return Result.success();
     }

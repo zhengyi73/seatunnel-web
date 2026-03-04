@@ -54,8 +54,7 @@ public class JobDefinitionDaoImpl implements IJobDefinitionDao {
     @Override
     public JobDefinition getJob(long id) {
         return jobMapper.selectOne(
-                Wrappers.<JobDefinition>lambdaQuery()
-                        .eq(JobDefinition::getId, id));
+                Wrappers.<JobDefinition>lambdaQuery().eq(JobDefinition::getId, id));
     }
 
     @Override
@@ -77,10 +76,7 @@ public class JobDefinitionDaoImpl implements IJobDefinitionDao {
         } else {
             jobDefinitionIPage =
                     jobMapper.queryJobListPagingWithJobMode(
-                            new Page<>(pageNo, pageSize),
-                            searchName,
-                            jobMode,
-                            workspaceId);
+                            new Page<>(pageNo, pageSize), searchName, jobMode, workspaceId);
         }
         PageInfo<JobDefinitionRes> jobs = new PageInfo<>();
         jobs.setData(jobDefinitionIPage.getRecords());
@@ -102,9 +98,7 @@ public class JobDefinitionDaoImpl implements IJobDefinitionDao {
 
     @Override
     public void delete(long id) {
-        jobMapper.delete(
-                Wrappers.<JobDefinition>lambdaQuery()
-                        .eq(JobDefinition::getId, id));
+        jobMapper.delete(Wrappers.<JobDefinition>lambdaQuery().eq(JobDefinition::getId, id));
     }
 
     @Override
