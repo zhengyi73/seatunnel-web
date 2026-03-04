@@ -474,17 +474,32 @@ public class JobInstanceServiceImpl extends SeatunnelBaseServiceImpl
             }
         }
 
-        // For HTTP source with format=json, the SeaTunnel engine requires a 'schema'
-        // field.
-        // It is now available as an optional field in the UI. If the user did not
-        // manually
-        // provide a schema, we build it here from the task's outputSchema.
+        // For sources that require a 'schema' field (HTTP with format=json,
+        // or file-based sources like LocalFile with certain file_format_type values),
+        // the SeaTunnel engine needs it. If the user did not manually provide a schema,
+        // we build it here from the task's outputSchema.
+
+        boolean needsSchemaInjection = false;
         if (PluginType.SOURCE.equals(pluginType)
-                && "HTTP".equalsIgnoreCase(pluginName)
-                && connectorConfig.hasPath("format")
-                && "json".equalsIgnoreCase(connectorConfig.getString("format"))
                 && !connectorConfig.hasPath("schema")
                 && StringUtils.isNotEmpty(task.getOutputSchema())) {
+            if ("HTTP".equalsIgnoreCase(pluginName)
+                    && connectorConfig.hasPath("format")
+                    && "json".equalsIgnoreCase(connectorConfig.getString("format"))) {
+                needsSchemaInjection = true;
+            } else if ("LOCALFILE".equalsIgnoreCase(pluginName)
+                    && connectorConfig.hasPath("file_format_type")) {
+                String fileFormatType = connectorConfig.getString("file_format_type").toUpperCase();
+                if ("TEXT".equals(fileFormatType)
+                        || "JSON".equals(fileFormatType)
+                        || "EXCEL".equals(fileFormatType)
+                        || "CSV".equals(fileFormatType)
+                        || "XML".equals(fileFormatType)) {
+                    needsSchemaInjection = true;
+                }
+            }
+        }
+        if (needsSchemaInjection) {
             try {
                 List<DatabaseTableSchemaReq> outputSchemas =
                         JsonUtils.parseObject(
@@ -511,7 +526,8 @@ public class JobInstanceServiceImpl extends SeatunnelBaseServiceImpl
                 }
             } catch (Exception e) {
                 log.warn(
-                        "Failed to inject schema for HTTP source from outputSchema: {}",
+                        "Failed to inject schema for source '{}' from outputSchema: {}",
+                        pluginName,
                         e.getMessage());
             }
         }

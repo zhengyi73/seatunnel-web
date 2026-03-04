@@ -43,6 +43,8 @@ public class LocalFileDataSourceConfigSwitcher extends AbstractDataSourceConfigS
         return "LOCALFILE";
     }
 
+    private static final String SCHEMA = "schema";
+
     @Override
     public FormStructure filterOptionRule(
             String connectorName,
@@ -54,6 +56,10 @@ public class LocalFileDataSourceConfigSwitcher extends AbstractDataSourceConfigS
             List<RequiredOption> addRequiredOptions,
             List<Option<?>> addOptionalOptions,
             List<String> excludedKeys) {
+
+        excludedKeys.add(SCHEMA);
+        addOptionalOptions.add(org.apache.seatunnel.api.options.ConnectorCommonOptions.SCHEMA);
+
         return super.filterOptionRule(
                 connectorName,
                 dataSourceOptionRule,
@@ -75,6 +81,13 @@ public class LocalFileDataSourceConfigSwitcher extends AbstractDataSourceConfigS
             BusinessMode businessMode,
             PluginType pluginType,
             Config connectorConfig) {
+        // Remove 'schema' from the datasource instance config to prevent it from
+        // overwriting the user-provided schema in the connector config.
+        // The datasource config may contain an empty/null schema entry that would
+        // replace the user's nested schema (e.g. {fields: {name: string}}).
+        if (dataSourceInstanceConfig.hasPath(SCHEMA)) {
+            dataSourceInstanceConfig = dataSourceInstanceConfig.withoutPath(SCHEMA);
+        }
         return super.mergeDatasourceConfig(
                 dataSourceInstanceConfig,
                 virtualTableDetail,
