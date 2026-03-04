@@ -66,6 +66,14 @@ seatunnel-web:
 seatunnel:
   engine:
     url: http://localhost:8080
+
+# DolphinScheduler Integration
+dolphinscheduler:
+  url: http://192.168.1.117:12345/dolphinscheduler
+  token: a2fe48479840e844a9292a133b900b3b
+  tenant: default
+  project-name: seatunnel
+  callback-url: http://127.0.0.1:8801
 ---
 spring:
   config:
