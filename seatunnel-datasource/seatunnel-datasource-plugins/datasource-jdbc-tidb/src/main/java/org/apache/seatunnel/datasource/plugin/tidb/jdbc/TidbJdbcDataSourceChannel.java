@@ -174,6 +174,8 @@ public class TidbJdbcDataSourceChannel implements DataSourceChannel {
             throws SQLException, ClassNotFoundException {
         checkNotNull(requestParams.get(TidbOptionRule.DRIVER.key()));
         checkNotNull(requestParams.get(TidbOptionRule.URL.key()), "Jdbc url cannot be null");
+        // 显式加载驱动类，解决自定义类加载器环境下驱动无法自动注册的问题
+        Class.forName(requestParams.get(TidbOptionRule.DRIVER.key()));
         String url =
                 JdbcUtils.replaceDatabase(
                         requestParams.get(TidbOptionRule.URL.key()), databaseName);
