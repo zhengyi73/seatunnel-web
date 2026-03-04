@@ -71,6 +71,7 @@ import org.apache.seatunnel.common.access.ResourceType;
 import org.apache.seatunnel.common.constants.PluginType;
 import org.apache.seatunnel.common.utils.ExceptionUtils;
 import org.apache.seatunnel.common.utils.JsonUtils;
+import org.apache.seatunnel.datasource.plugin.api.model.TableField;
 import org.apache.seatunnel.engine.core.job.JobResult;
 import org.apache.seatunnel.server.common.CodeGenerateUtils;
 import org.apache.seatunnel.server.common.SeatunnelErrorEnum;
@@ -470,6 +471,48 @@ public class JobInstanceServiceImpl extends SeatunnelBaseServiceImpl
             String tableName = dataSourceOption.getTables().get(0);
             if (virtualTableService.containsVirtualTableByTableName(tableName)) {
                 virtualTableDetailRes = virtualTableService.queryVirtualTableByTableName(tableName);
+            }
+        }
+
+        // For HTTP source with format=json, the SeaTunnel engine requires a 'schema'
+        // field.
+        // It is now available as an optional field in the UI. If the user did not
+        // manually
+        // provide a schema, we build it here from the task's outputSchema.
+        if (PluginType.SOURCE.equals(pluginType)
+                && "HTTP".equalsIgnoreCase(pluginName)
+                && connectorConfig.hasPath("format")
+                && "json".equalsIgnoreCase(connectorConfig.getString("format"))
+                && !connectorConfig.hasPath("schema")
+                && StringUtils.isNotEmpty(task.getOutputSchema())) {
+            try {
+                List<DatabaseTableSchemaReq> outputSchemas =
+                        JsonUtils.parseObject(
+                                task.getOutputSchema(),
+                                new TypeReference<List<DatabaseTableSchemaReq>>() {});
+                if (outputSchemas != null && !outputSchemas.isEmpty()) {
+                    DatabaseTableSchemaReq tableSchema = outputSchemas.get(0);
+                    if (tableSchema.getFields() != null && !tableSchema.getFields().isEmpty()) {
+                        Config fieldsConfig = ConfigFactory.empty();
+                        for (TableField field : tableSchema.getFields()) {
+                            String fieldType =
+                                    StringUtils.isNotEmpty(field.getType())
+                                            ? field.getType()
+                                            : "string";
+                            fieldsConfig =
+                                    fieldsConfig.withValue(
+                                            field.getName(),
+                                            ConfigValueFactory.fromAnyRef(fieldType));
+                        }
+                        Config schemaConfig =
+                                ConfigFactory.empty().withValue("fields", fieldsConfig.root());
+                        connectorConfig = connectorConfig.withValue("schema", schemaConfig.root());
+                    }
+                }
+            } catch (Exception e) {
+                log.warn(
+                        "Failed to inject schema for HTTP source from outputSchema: {}",
+                        e.getMessage());
             }
         }
 

@@ -61,6 +61,10 @@ public class HttpDataSourceConfigSwitcher extends AbstractDataSourceConfigSwitch
         // that references 'format', which is defined in the datasource options and gets filtered
         // out. This would cause form validation to fail with "show field[format] can not found".
         excludedKeys.addAll(Arrays.asList(SCHEMA));
+        // Manually add the schema option back as an optional field so it renders in the
+        // UI
+        // without the problematic conditional show rule.
+        addOptionalOptions.add(org.apache.seatunnel.api.options.ConnectorCommonOptions.SCHEMA);
         return super.filterOptionRule(
                 connectorName,
                 dataSourceOptionRule,
